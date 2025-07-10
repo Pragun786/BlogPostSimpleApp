@@ -15,4 +15,15 @@ public class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=BlogPostDb;Trusted_Connection=True;");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.HasOne(p => p.PostType)
+            .WithMany(pt => pt.Posts)
+            .HasForeignKey(p => p.PostTypeId);
+        }); 
+    }
+
 }
