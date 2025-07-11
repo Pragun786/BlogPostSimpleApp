@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogPostSimpleApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250710232337_Blog-Post-relationship-with-fluent-API")]
+    partial class BlogPostrelationshipwithfluentAPI
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,16 +96,11 @@ namespace BlogPostSimpleApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("PostId");
 
                     b.HasIndex("BlogId");
 
                     b.HasIndex("PostTypeId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -133,32 +131,6 @@ namespace BlogPostSimpleApp.Migrations
                     b.ToTable("PostType");
                 });
 
-            modelBuilder.Entity("BlogPostSimpleApp.Models.User", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("Users");
-                });
-
             modelBuilder.Entity("BlogPostSimpleApp.Models.Blog", b =>
                 {
                     b.HasOne("BlogPostSimpleApp.Models.BlogType", "BlogType")
@@ -184,17 +156,9 @@ namespace BlogPostSimpleApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BlogPostSimpleApp.Models.User", "User")
-                        .WithMany("Posts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Blog");
 
                     b.Navigation("PostType");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BlogPostSimpleApp.Models.Blog", b =>
@@ -208,11 +172,6 @@ namespace BlogPostSimpleApp.Migrations
                 });
 
             modelBuilder.Entity("BlogPostSimpleApp.Models.PostType", b =>
-                {
-                    b.Navigation("Posts");
-                });
-
-            modelBuilder.Entity("BlogPostSimpleApp.Models.User", b =>
                 {
                     b.Navigation("Posts");
                 });

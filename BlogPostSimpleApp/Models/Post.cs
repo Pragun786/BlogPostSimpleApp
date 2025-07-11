@@ -15,6 +15,8 @@ namespace BlogPostSimpleApp.Models
         public int BlogId { get; set; }            
         public Blog Blog { get; set; }
         public int PostTypeId { get; set; }  
-        public PostType PostType { get; set; } 
+        public PostType PostType { get; set; }
+        public int UserId { get; set; }     
+        public User User { get; set; }     
     }
 }
