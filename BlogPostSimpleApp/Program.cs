@@ -1,36 +1,86 @@
 ﻿using BlogPostSimpleApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+
 class Program
 {
     static void Main()
     {
         using var context = new AppDbContext();
-        // Add new Blog
+
+        // STEP 1: Add new Blog
         Console.Write("Enter blog URL: ");
         var url = Console.ReadLine();
         var blog = new Blog { Url = url };
+        var blogType = context.BlogTypes.FirstOrDefault();
+        if (blogType == null)
+        {
+            blogType = new BlogType
+            {
+                Status = 1,
+                Name = "General",
+                Description = "Default blog type"
+            };
+            context.BlogTypes.Add(blogType);
+            context.SaveChanges();
+        }
+
+        // Assign BlogType to blog
+        blog.BlogTypeId = blogType.BlogTypeId;
         context.Blogs.Add(blog);
         context.SaveChanges();
-        // Add a Post
+
+        // STEP 2: Add 3 users
+        var users = new List<User>
+        {
+            new User { UserName = "Alice", Email = "alice@example.com", PhoneNumber = "1234567890" },
+            new User { UserName = "Bob", Email = "bob@example.com", PhoneNumber = "2345678901" },
+            new User { UserName = "Charlie", Email = "charlie@example.com", PhoneNumber = "3456789012" }
+        };
+
+        context.Users.AddRange(users);
+        context.SaveChanges();
+
+        // STEP 3: Ensure at least one PostType exists
+        var postType = context.PostTypes.FirstOrDefault();
+        if (postType == null)
+        {
+            postType = new PostType
+            {
+                Status = 1,
+                Name = "General",
+                Description = "Default post type"
+            };
+            context.PostTypes.Add(postType);
+            context.SaveChanges();
+        }
+
+        // STEP 4: Add a Post by the first user
         var post = new Post
         {
             Title = "Hello EF Core",
             Content = "This is my first post!",
-            BlogId =
-       blog.BlogId
+            BlogId = blog.BlogId,
+            PostTypeId = postType.PostTypeId,
+            UserId = users[0].UserId // Alice
         };
         context.Posts.Add(post);
         context.SaveChanges();
-        // Display all blogs and posts
-        var blogs = context.Blogs.Include(b => b.Posts).ToList();
+
+        // STEP 5: Display all blogs and posts with user info
+        var blogs = context.Blogs
+            .Include(b => b.Posts)
+            .ThenInclude(p => p.User)
+            .ToList();
+
         foreach (var b in blogs)
         {
-            Console.WriteLine($"Blog: {b.Url}");
+            Console.WriteLine($"\nBlog: {b.Url}");
             foreach (var p in b.Posts)
             {
-                Console.WriteLine($" Post: {p.Title} - {p.Content}");
+                Console.WriteLine($"  Post: {p.Title} - {p.Content} (Author: {p.User?.UserName})");
             }
         }
     }
