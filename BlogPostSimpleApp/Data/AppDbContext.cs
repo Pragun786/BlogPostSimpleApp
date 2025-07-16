@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<BlogType> BlogTypes { get; set; }
     public DbSet<PostType> PostTypes { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Status> Statuses { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -43,6 +44,12 @@ public class AppDbContext : DbContext
             entity.HasOne(p => p.User)
                   .WithMany(u => u.Posts)
                   .HasForeignKey(p => p.UserId);
+        });
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.HasOne(b => b.Status)
+                  .WithMany(s => s.Blogs)
+                  .HasForeignKey(b => b.StatusId);
         });
     }
 
